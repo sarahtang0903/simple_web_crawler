@@ -26,14 +26,14 @@ unordered_map<string, string> originalImgUrls;
 
 bool IsURLValid(const string &url)
 {
-    // ©w¸q URL ªº¥¿«hªí¹F¦¡
+    // å®šç¾© URL çš„æ­£å‰‡è¡¨é”å¼
     regex urlRegex("^https?://[\\w\\.-]+(:\\d+)?(/\\S*)?$");
 
-    // ¨Ï¥Î regex_match ¨ç¼ÆÀË¬d¬O§_¤Ç°t
+    // ä½¿ç”¨ regex_match å‡½æ•¸æª¢æŸ¥æ˜¯å¦åŒ¹é…
     return regex_match(url, urlRegex);
 }
 
-// ¸ÑªRurl
+// è§£æurl
 bool ParseURL(const string &url, string &host, string &resource)
 {
     if (strlen(url.c_str()) > 2000)
@@ -56,14 +56,14 @@ bool ParseURL(const string &url, string &host, string &resource)
     return true;
 }
 
-// ¨Ï¥Î Get
+// ä½¿ç”¨ Get
 bool GetHttpResponse(const string &url, char *&response, int &bytesRead)
 {
     string fullUrl;
     string host, resource;
     if (url.find("http://") == string::npos)
     {
-        // ¦pªG¬O¬Û¹ï URL
+        // å¦‚æœæ˜¯ç›¸å° URL
         fullUrl = "http://" + host + "/" + url;
     }
     else
@@ -71,14 +71,14 @@ bool GetHttpResponse(const string &url, char *&response, int &bytesRead)
         fullUrl = url;
     }
 
-    // ¸ÑªR URL
+    // è§£æ URL
     if (!ParseURL(fullUrl, host, resource))
     {
         cout << "Can not parse the url" << endl;
         return false;
     }
 
-    // «Ø¥ß socket
+    // å»ºç«‹ socket
     struct hostent *hp = gethostbyname(host.c_str());
     if (hp == NULL)
     {
@@ -93,13 +93,13 @@ bool GetHttpResponse(const string &url, char *&response, int &bytesRead)
         return false;
     }
 
-    // ³]¸m Socket ³s±µªº¦a§}
+    // è¨­ç½® Socket é€£æ¥çš„åœ°å€
     SOCKADDR_IN sa;
     sa.sin_family = AF_INET;
     sa.sin_port = htons(80);
     memcpy(&sa.sin_addr, hp->h_addr, 4);
 
-    // ³q¹L connect ¨ç¼Æ»P¥D¾÷«Ø¥ß³s±µ
+    // é€šé connect å‡½æ•¸èˆ‡ä¸»æ©Ÿå»ºç«‹é€£æ¥
     if (0 != connect(sock, (SOCKADDR *)&sa, sizeof(sa)))
     {
         cout << "Can not connect: " << fullUrl << endl;
@@ -107,7 +107,7 @@ bool GetHttpResponse(const string &url, char *&response, int &bytesRead)
         return false;
     };
 
-    // ºc«Ø HTTP GET ½Ğ¨D¨Ã³q¹L send ¨ç¼Æµo°e HTTP GET½Ğ¨D
+    // æ§‹å»º HTTP GET è«‹æ±‚ä¸¦é€šé send å‡½æ•¸ç™¼é€ HTTP GETè«‹æ±‚
     string request = "GET " + resource + " HTTP/1.1\r\nHost:" + host + "\r\nConnection:Close\r\n\r\n";
 
     if (SOCKET_ERROR == send(sock, request.c_str(), request.size(), 0))
@@ -117,7 +117,7 @@ bool GetHttpResponse(const string &url, char *&response, int &bytesRead)
         return false;
     }
 
-    // ±µ¦¬ HTTP response
+    // æ¥æ”¶ HTTP response
     int m_nContentLength = DEFAULT_PAGE_BUF_SIZE;
     char *pageBuf = (char *)malloc(m_nContentLength);
     memset(pageBuf, 0, m_nContentLength);
@@ -137,7 +137,7 @@ bool GetHttpResponse(const string &url, char *&response, int &bytesRead)
         {
             cout << "\nRealloc memorry" << endl;
             m_nContentLength *= 2;
-            pageBuf = (char *)realloc(pageBuf, m_nContentLength); // ­«·s¤À°t¤º¦s
+            pageBuf = (char *)realloc(pageBuf, m_nContentLength); // é‡æ–°åˆ†é…å…§å­˜
         }
     }
     cout << endl;
@@ -148,7 +148,7 @@ bool GetHttpResponse(const string &url, char *&response, int &bytesRead)
     return true;
 }
 
-// ´£¨ú¨ä¤¤ªº¹Ï¤ù URL
+// æå–å…¶ä¸­çš„åœ–ç‰‡ URL
 vector<string> HTMLParse(string &htmlResponse, vector<string> &imgurls, vector<string> &pageUrls, const string &host)
 {
     vector<string> originurls;
@@ -263,7 +263,7 @@ void ModifyHTMLImagesWithLocalPaths(const string &filePath, const unordered_map<
         return;
     }
 
-    // Åª¨ú¾ã­Ó¤å¥ó¤º®e
+    // è®€å–æ•´å€‹æ–‡ä»¶å…§å®¹
     string fileContent((istreambuf_iterator<char>(inputFile)), istreambuf_iterator<char>());
     inputFile.close();
 
@@ -288,7 +288,7 @@ void ModifyHTMLImagesWithLocalPaths(const string &filePath, const unordered_map<
         }
     }
 
-    // ¼g¦^¤å¥ó
+    // å¯«å›æ–‡ä»¶
     ofstream outputFile(filePath);
     if (!outputFile.is_open())
     {
@@ -302,7 +302,7 @@ void ModifyHTMLImagesWithLocalPaths(const string &filePath, const unordered_map<
     cout << "HTML file modified successfully." << endl;
 }
 
-// ¤U¸ü¹Ï¤ù
+// ä¸‹è¼‰åœ–ç‰‡
 //
 
 bool DownloadImage(const string &imageUrl, const string &outputFileName, unordered_map<string, string> &originalImgUrls, const string &filename)
@@ -311,14 +311,14 @@ bool DownloadImage(const string &imageUrl, const string &outputFileName, unorder
     char *response;
     int bytes;
 
-    // ¥Î GET ½Ğ¨DÀò¨ú¹Ï¤ù
+    // ç”¨ GET è«‹æ±‚ç²å–åœ–ç‰‡
     if (!GetHttpResponse(imageUrl, response, bytes))
     {
         cout << "Failed to get HTTP response for image: " << imageUrl << endl;
         return false;
     }
 
-    // ÀË¬d Content-Type
+    // æª¢æŸ¥ Content-Type
     const string contentTypeHeader = "Content-Type:";
     const char *contentTypePos = strstr(response, contentTypeHeader.c_str());
     if (contentTypePos != nullptr)
@@ -329,14 +329,14 @@ bool DownloadImage(const string &imageUrl, const string &outputFileName, unorder
         {
             string contentType(contentTypePos, endOfLine - contentTypePos);
 
-            // ÀË¬d Content-Type ¬O§_¬°¹Ï¤ù®æ¦¡
+            // æª¢æŸ¥ Content-Type æ˜¯å¦ç‚ºåœ–ç‰‡æ ¼å¼
             if (contentType.find("image/") != string::npos)
             {
-                // ¼g¤J¹Ï¤ù¤å¥ó
+                // å¯«å…¥åœ–ç‰‡æ–‡ä»¶
                 ofstream imageFile(outputFileName, ios::binary);
                 if (imageFile.is_open())
                 {
-                    // §ä¨ì¹Ï¤ù¼Æ¾Úªº¶}©l¦ì¸m
+                    // æ‰¾åˆ°åœ–ç‰‡æ•¸æ“šçš„é–‹å§‹ä½ç½®
                     const char *imageDataStart = strstr(response, "\r\n\r\n");
                     if (imageDataStart != nullptr)
                     {
@@ -348,12 +348,12 @@ bool DownloadImage(const string &imageUrl, const string &outputFileName, unorder
                         // originalImgUrls[imageUrl] = outputFileName;
                         free(response);
                         auto endTime = steady_clock::now();
-                        auto elapsedTime = duration_cast<milliseconds>(endTime - startTime).count() / 1000.0; // ´«ºâ¦¨¬í
+                        auto elapsedTime = duration_cast<milliseconds>(endTime - startTime).count() / 1000.0; // æ›ç®—æˆç§’
 
-                        // ­pºâ³t«×
-                        double speed = bytes / elapsedTime / 1024.0; // ¨C¬íªº KB ¼Æ
+                        // è¨ˆç®—é€Ÿåº¦
+                        double speed = bytes / elapsedTime / 1024.0; // æ¯ç§’çš„ KB æ•¸
 
-                        // Åã¥Ü³t«×©M¹w­p³Ñ¾l§¹¦¨®É¶¡
+                        // é¡¯ç¤ºé€Ÿåº¦å’Œé è¨ˆå‰©é¤˜å®Œæˆæ™‚é–“
                         cout << "Download speed: " << speed << " KB/s" << endl;
                         cout << "Download size: " << imageBytes << "  bytes" << endl;
 
